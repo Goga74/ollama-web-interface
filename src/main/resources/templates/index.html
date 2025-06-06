@@ -1,0 +1,367 @@
+<!--
+  ~ Copyright 2001-2025 by HireRight, Inc. All rights reserved.
+  ~ This software is the confidential and proprietary information
+  ~ of HireRight, Inc. Use is subject to license terms.
+  -->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .chat-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .response-area {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .response-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .response-header h3 {
+            color: #374151;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .model-info {
+            background: #4f46e5;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .response-content {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-response {
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-bar {
+            background: #f1f5f9;
+            padding: 15px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .status-online {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .language-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .language-switch a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .language-switch a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header {
+                padding: 20px;
+                position: relative;
+            }
+
+            .language-switch {
+                position: static;
+                text-align: center;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="language-switch">
+            <a href="?lang=ru">🇷🇺 Русский</a>
+        </div>
+        <h1>🤖 Ollama Web Interface</h1>
+        <p>Convenient web interface for working with local AI models</p>
+    </div>
+
+    <div class="main-content">
+        <!-- Chat Form -->
+        <div class="chat-form">
+            <h3 style="margin-bottom: 20px; color: #374151;">Send Request</h3>
+
+            <div th:if="${error}" class="error" th:text="${error}"></div>
+
+            <form th:action="@{/chat}" th:object="${chatRequest}" method="post" id="chatForm">
+                <div class="form-group">
+                    <label for="model">Select Model:</label>
+                    <select th:field="*{model}" class="form-control" id="model" required>
+                        <option value="">-- Choose a model --</option>
+                        <option th:each="model : ${availableModels}"
+                                th:value="${model.name}"
+                                th:text="${model.name + ' (' + model.size + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="prompt">Your Question:</label>
+                    <textarea th:field="*{prompt}"
+                              class="form-control"
+                              id="prompt"
+                              placeholder="Enter your question or task for the AI model..."
+                              required></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    <span id="btnText">🚀 Send Request</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Response Area -->
+        <div class="response-area">
+            <div class="response-header">
+                <h3>Model Response</h3>
+                <span th:if="${model}" class="model-info" th:text="${model}"></span>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing your request...</p>
+            </div>
+
+            <div class="response-content">
+                <div th:if="${response}" th:text="${response}"></div>
+                <div th:unless="${response}" class="empty-response">
+                    The AI model's response will appear here after sending a request
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>Ollama API: <span class="status-online">localhost:11434</span></span>
+        <span>Web Interface: <span class="status-online">localhost:8074</span></span>
+        <span>Ready to work ✨</span>
+    </div>
+</div>
+
+<script>
+    document.getElementById('chatForm').addEventListener('submit', function() {
+        const loading = document.getElementById('loading');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+
+        // Show loading indicator
+        loading.classList.add('show');
+        submitBtn.disabled = true;
+        btnText.textContent = '⏳ Processing...';
+    });
+
+    // Auto focus on input field
+    document.getElementById('prompt').focus();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            document.getElementById('chatForm').submit();
+        }
+    });
+</script>
+</body>
+</html>

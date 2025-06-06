@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .chat-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .response-area {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .response-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .response-header h3 {
+            color: #374151;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .model-info {
+            background: #4f46e5;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .response-content {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-response {
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-bar {
+            background: #f1f5f9;
+            padding: 15px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .status-online {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Ollama Web Interface</h1>
+            <p>Удобный веб-интерфейс для работы с локальными AI моделями</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Форма чата -->
+            <div class="chat-form">
+                <h3 style="margin-bottom: 20px; color: #374151;">Отправить запрос</h3>
+                
+                <div th:if="${error}" class="error" th:text="${error}"></div>
+                
+                <form th:action="@{/chat}" th:object="${chatRequest}" method="post" id="chatForm">
+                    <div class="form-group">
+                        <label for="model">Выберите модель:</label>
+                        <select th:field="*{model}" class="form-control" id="model" required>
+                            <option value="">-- Выберите модель --</option>
+                            <option th:each="model : ${availableModels}" 
+                                    th:value="${model.name}" 
+                                    th:text="${model.name + ' (' + model.size + ')'}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prompt">Ваш вопрос:</label>
+                        <textarea th:field="*{prompt}" 
+                                  class="form-control" 
+                                  id="prompt" 
+                                  placeholder="Введите ваш вопрос или задачу для AI модели..."
+                                  required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        <span id="btnText">🚀 Отправить запрос</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Область ответа -->
+            <div class="response-area">
+                <div class="response-header">
+                    <h3>Ответ модели</h3>
+                    <span th:if="${model}" class="model-info" th:text="${model}"></span>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Обрабатываем ваш запрос...</p>
+                </div>
+
+                <div class="response-content">
+                    <div th:if="${response}" th:text="${response}"></div>
+                    <div th:unless="${response}" class="empty-response">
+                        Здесь появится ответ от AI модели после отправки запроса
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>Ollama API: <span class="status-online">localhost:11434</span></span>
+            <span>Web Interface: <span class="status-online">localhost:8074</span></span>
+            <span>Готов к работе ✨</span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('chatForm').addEventListener('submit', function() {
+            const loading = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            // Показываем индикатор загрузки
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+            btnText.textContent = '⏳ Обрабатываем...';
+        });
+
+        // Автофокус на поле ввода
+        document.getElementById('prompt').focus();
+        
+        // Горячие клавиши
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('chatForm').submit();
+            }
+        });
+    </script>
+</body>
+</html>
