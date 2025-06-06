@@ -20,6 +20,8 @@ A modern, user-friendly web interface for interacting with Ollama AI models thro
 - Ollama installed and running on localhost:11434
 - At least one AI model downloaded in Ollama (e.g., `ollama pull gemma3:4b`)
 
+> 📋 **New to Ollama?** Check out our comprehensive [Ollama Setup Guide](Ollama.md) for detailed installation and configuration instructions.
+
 ## Installation
 
 1. **Clone or download the project**
@@ -32,6 +34,8 @@ A modern, user-friendly web interface for interacting with Ollama AI models thro
    ```bash
    ollama serve
    ```
+   
+   > ❓ **Need help with Ollama?** See our [Ollama Setup Guide](Ollama.md) for complete installation instructions.
 
 3. **Build and run the application**
    ```bash
@@ -130,10 +134,12 @@ ollama-web-interface/
 **"Ollama не доступен" error:**
 - Ensure Ollama is running: `ollama serve`
 - Check if Ollama is accessible: `curl http://localhost:11434/api/version`
+- See [Ollama Setup Guide](Ollama.md) for detailed troubleshooting
 
 **No models available:**
 - Download a model: `ollama pull gemma3:4b`
 - Verify models are installed: `ollama list`
+- Check [Ollama Setup Guide](Ollama.md) for recommended models
 
 **Port already in use:**
 - Change the port in `application.properties`: `server.port=8081`
