@@ -6,6 +6,7 @@
 .project
 .settings/
 target/
+qlora/
 out/
 lib/
 _tst/

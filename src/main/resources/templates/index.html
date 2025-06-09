@@ -1,17 +1,9 @@
-<!--
-  ~ Copyright 2025 by HireRight, Inc. All rights reserved.
-  ~ This software is the confidential and proprietary information
-  ~ of HireRight, Inc. Use is subject to license terms.
-
-  I. Zamiatin 2025-06-08
-  -->
-
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HireRight - Ollama AI Interface</title>
+    <title>Ollama Web Interface</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #cc0000 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -29,48 +21,27 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            border: 2px solid #cc0000;
         }
 
         .header {
-            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
             padding: 30px;
             text-align: center;
-            position: relative;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            gap: 20px;
-        }
-
-        .logo {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #cc0000;
-            font-size: 1.5rem;
-            letter-spacing: -1px;
         }
 
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             font-weight: 600;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
-            opacity: 0.95;
+            opacity: 0.9;
             font-size: 1.1rem;
         }
 
@@ -79,15 +50,13 @@
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             padding: 30px;
-            background: #f9f9f9;
         }
 
         .chat-form {
-            background: white;
+            background: #f8fafc;
             border-radius: 12px;
             padding: 25px;
-            border: 2px solid #cc0000;
-            box-shadow: 0 4px 12px rgba(204, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
         }
 
         .form-group {
@@ -98,14 +67,14 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #374151;
             font-size: 0.95rem;
         }
 
         .form-control {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e2e2e2;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 16px;
             transition: all 0.3s ease;
@@ -114,8 +83,8 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #cc0000;
-            box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1);
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         select.form-control {
@@ -129,7 +98,7 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -139,13 +108,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(204, 0, 0, 0.4);
-            background: linear-gradient(135deg, #e60000 0%, #cc0000 100%);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn:active {
@@ -153,60 +120,26 @@
         }
 
         .response-area {
-            background: white;
+            background: #f8fafc;
             border-radius: 12px;
             padding: 25px;
-            border: 2px solid #1a1a1a;
-            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.1);
+            border: 1px solid #e2e8f0;
         }
 
         .response-header {
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #cc0000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
         }
 
         .response-header h3 {
-            color: #1a1a1a;
+            color: #374151;
             font-size: 1.3rem;
             margin-bottom: 5px;
         }
 
-        .copy-btn {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .copy-btn:hover {
-            background: linear-gradient(135deg, #2d2d2d 0%, #4a4a4a 100%);
-            transform: translateY(-1px);
-        }
-
-        .copy-btn:active {
-            transform: translateY(0);
-        }
-
-        .copy-btn.show {
-            display: inline-block;
-        }
-
-        .copy-btn.copied {
-            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
-        }
-
         .model-info {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: #4f46e5;
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
@@ -215,40 +148,39 @@
         }
 
         .response-content {
-            background: #f9f9f9;
-            border: 2px solid #e2e2e2;
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 20px;
             min-height: 200px;
             font-size: 1rem;
             line-height: 1.6;
-            color: #1a1a1a;
+            color: #374151;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
 
         .empty-response {
-            color: #6b6b6b;
+            color: #9ca3af;
             font-style: italic;
             text-align: center;
             padding: 60px 20px;
         }
 
         .error {
-            background: #fff5f5;
-            border: 2px solid #cc0000;
-            color: #cc0000;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            font-weight: 500;
         }
 
         .loading {
             display: none;
             text-align: center;
             padding: 20px;
-            color: #6b6b6b;
+            color: #6b7280;
         }
 
         .loading.show {
@@ -256,8 +188,8 @@
         }
 
         .spinner {
-            border: 3px solid #e2e2e2;
-            border-top: 3px solid #cc0000;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -271,18 +203,18 @@
         }
 
         .status-bar {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
+            background: #f1f5f9;
             padding: 15px 30px;
-            border-top: 2px solid #cc0000;
+            border-top: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.9rem;
+            color: #64748b;
         }
 
         .status-online {
-            color: #00ff88;
+            color: #059669;
             font-weight: 600;
         }
 
@@ -296,26 +228,15 @@
         .language-switch a {
             color: white;
             text-decoration: none;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.9rem;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .language-switch a:hover {
-            background: rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .section-title {
-            margin-bottom: 20px;
-            color: #1a1a1a;
-            font-weight: 700;
-            font-size: 1.2rem;
-            border-left: 4px solid #cc0000;
-            padding-left: 12px;
+            background: rgba(255, 255, 255, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -339,23 +260,6 @@
                 text-align: center;
                 margin-top: 15px;
             }
-
-            .logo-section {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        /* HireRight specific branding */
-        .hr-accent {
-            color: #cc0000;
-            font-weight: bold;
-        }
-
-        .powered-by {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -365,28 +269,22 @@
         <div class="language-switch">
             <a href="?lang=ru">🇷🇺 Русский</a>
         </div>
-        <div class="logo-section">
-            <div class="logo">HireRight</div>
-            <div>
-                <h1>AI Assistant Interface</h1>
-                <div class="powered-by">Powered by Ollama & Local AI Models</div>
-            </div>
-        </div>
-        <p>Advanced AI-powered solutions for talent acquisition and workforce intelligence</p>
+        <h1>🤖 Ollama Web Interface</h1>
+        <p>Convenient web interface for working with local AI models</p>
     </div>
 
     <div class="main-content">
         <!-- Chat Form -->
         <div class="chat-form">
-            <h3 class="section-title">AI Request Panel</h3>
+            <h3 style="margin-bottom: 20px; color: #374151;">Send Request</h3>
 
             <div th:if="${error}" class="error" th:text="${error}"></div>
 
             <form th:action="@{/chat}" th:object="${chatRequest}" method="post" id="chatForm">
                 <div class="form-group">
-                    <label for="model">Select <span class="hr-accent">AI Model</span>:</label>
+                    <label for="model">Select Model:</label>
                     <select th:field="*{model}" class="form-control" id="model" required>
-                        <option value="">-- Choose an AI model --</option>
+                        <option value="">-- Choose a model --</option>
                         <option th:each="model : ${availableModels}"
                                 th:value="${model.name}"
                                 th:text="${model.name + ' (' + model.size + ')'}">
@@ -395,16 +293,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="prompt">Your <span class="hr-accent">Query</span>:</label>
+                    <label for="prompt">Your Question:</label>
                     <textarea th:field="*{prompt}"
                               class="form-control"
                               id="prompt"
-                              placeholder="Enter your question or task for the AI assistant..."
+                              placeholder="Enter your question or task for the AI model..."
                               required></textarea>
                 </div>
 
                 <button type="submit" class="btn" id="submitBtn">
-                    <span id="btnText">Execute Query</span>
+                    <span id="btnText">🚀 Send Request</span>
                 </button>
             </form>
         </div>
@@ -412,32 +310,28 @@
         <!-- Response Area -->
         <div class="response-area">
             <div class="response-header">
-                <div>
-                    <h3 class="section-title">AI Response</h3>
-                    <span th:if="${model}" class="model-info" th:text="${model}"></span>
-                </div>
-                <button class="copy-btn" id="copyBtn" onclick="copyResponse()">Copy</button>
+                <h3>Model Response</h3>
+                <span th:if="${model}" class="model-info" th:text="${model}"></span>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Processing your request with <span class="hr-accent">HireRight AI</span>...</p>
+                <p>Processing your request...</p>
             </div>
 
-            <div class="response-content" id="responseContent">
+            <div class="response-content">
                 <div th:if="${response}" th:text="${response}"></div>
                 <div th:unless="${response}" class="empty-response">
-                    The AI assistant's response will appear here after executing your query
+                    The AI model's response will appear here after sending a request
                 </div>
             </div>
         </div>
     </div>
 
     <div class="status-bar">
-        <span><span class="hr-accent">HireRight</span> AI Platform</span>
         <span>Ollama API: <span class="status-online">localhost:11434</span></span>
-        <span>Interface: <span class="status-online">localhost:8074</span></span>
-        <span>System Ready</span>
+        <span>Web Interface: <span class="status-online">localhost:8074</span></span>
+        <span>Ready to work ✨</span>
     </div>
 </div>
 
@@ -462,83 +356,6 @@
             document.getElementById('chatForm').submit();
         }
     });
-
-    // Add some HireRight branding effects
-    document.addEventListener('DOMContentLoaded', function() {
-        const logo = document.querySelector('.logo');
-        logo.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.05)';
-            this.style.transition = 'transform 0.3s ease';
-        });
-        logo.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-        });
-
-        // Show copy button if response exists
-        const responseContent = document.getElementById('responseContent');
-        const copyBtn = document.getElementById('copyBtn');
-        const responseText = responseContent.querySelector('div:not(.empty-response)');
-
-        if (responseText && responseText.textContent.trim()) {
-            copyBtn.classList.add('show');
-        }
-    });
-
-    // Copy response function
-    function copyResponse() {
-        const responseContent = document.getElementById('responseContent');
-        const responseText = responseContent.querySelector('div:not(.empty-response)');
-        const copyBtn = document.getElementById('copyBtn');
-
-        if (responseText && responseText.textContent.trim()) {
-            // Use modern clipboard API
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(responseText.textContent.trim()).then(function() {
-                    showCopySuccess(copyBtn);
-                }).catch(function() {
-                    fallbackCopyTextToClipboard(responseText.textContent.trim(), copyBtn);
-                });
-            } else {
-                // Fallback for older browsers
-                fallbackCopyTextToClipboard(responseText.textContent.trim(), copyBtn);
-            }
-        }
-    }
-
-    // Fallback copy method
-    function fallbackCopyTextToClipboard(text, button) {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        try {
-            document.execCommand('copy');
-            showCopySuccess(button);
-        } catch (err) {
-            console.error('Fallback: Could not copy text: ', err);
-            button.textContent = 'Error';
-            setTimeout(() => button.textContent = 'Copy', 2000);
-        }
-
-        document.body.removeChild(textArea);
-    }
-
-    // Show copy success animation
-    function showCopySuccess(button) {
-        button.textContent = 'Copied!';
-        button.classList.add('copied');
-        setTimeout(() => {
-            button.textContent = 'Copy';
-            button.classList.remove('copied');
-        }, 2000);
-    }
 </script>
 </body>
 </html>
